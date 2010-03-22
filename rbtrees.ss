@@ -29,7 +29,6 @@
 #|
     Title: Red-Black trees
 
-
     Example:
     (start code)
     (end code)
@@ -45,7 +44,24 @@
   (import (rnrs))
 
 (define-record-type rb-trees
-  (fields))
+  (fields
+   (mutable root))
+  (protocol
+   (lambda (c)
+     (lambda ()
+       (c '())))))
+
+(define-record-type node
+  (fields
+   (mutable left)
+   (mutable right)
+   (mutable parent)
+   (mutable value)
+   (mutable color))
+  (protocol
+   (lambda (c)
+     (lambda ()
+       (c '())))))
 
 
 )
