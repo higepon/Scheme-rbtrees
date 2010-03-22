@@ -38,7 +38,14 @@
 
 |#
 (library (rbtrees)
-  (export)
-  (import)
+  (export
+   rb-trees?
+   make-rb-trees
+   )
+  (import (rnrs))
+
+(define-record-type rb-trees
+  (fields))
+
 
 )
