@@ -2,6 +2,7 @@
         (srfi :78)
         (rbtrees))
 
-(check (rb-trees? (make-rb-trees)) => #t)
+(let ([rb (make-rb-trees)])
+  (check (rb-trees? rb) => #t))
 
 (check-report)
