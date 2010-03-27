@@ -86,4 +86,8 @@
       #t
       #t))
 
+;; internal procedures
+(define (binary-search-tree? rb)
+  #t)
+
 )
