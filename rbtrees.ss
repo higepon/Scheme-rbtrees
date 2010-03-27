@@ -58,16 +58,27 @@
    (mutable left)
    (mutable right)
    (mutable parent)
+   (mutable key)
    (mutable value)
-   (mutable color))
-  (protocol
-   (lambda (c)
-     (lambda ()
-       (c '())))))
+   (mutable color)))
 
 (define (rb-set! rb key value)
-  #f
-)
+  (let loop ([x (rb-trees-root rb)]
+             [y '()])
+    (cond
+     [(null? x)
+      (let ([z (make-node '() '() y key value 'black)])
+        (cond
+         [(null? y)
+          (rb-trees-root-set! rb z)]
+         [(< key (node-key y))
+          (node-left-set! y z)]
+         [else
+          (node-right-set! y z)]))]
+     [else
+      (if (< key (node-key x))
+          (loop (node-left x) x)
+          (loop (node-right x) x))])))
 
 (define (rb-valid? rb)
   (assert (rb-trees? rb))
