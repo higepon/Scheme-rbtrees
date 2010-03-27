@@ -39,6 +39,7 @@
 (library (rbtrees)
   (export
    rb-trees?
+   rb-valid?
    make-rb-trees
    )
   (import (rnrs))
@@ -63,5 +64,10 @@
      (lambda ()
        (c '())))))
 
+(define (rb-valid? rb)
+  (assert (rb-trees? rb))
+  (if (null? (rb-trees-root rb))
+      #t
+      #f))
 
 )
