@@ -40,6 +40,7 @@
   (export
    rb-trees?
    rb-valid?
+   rb-set!
    make-rb-trees
    )
   (import (rnrs))
@@ -63,6 +64,10 @@
    (lambda (c)
      (lambda ()
        (c '())))))
+
+(define (rb-set! rb key value)
+  #f
+)
 
 (define (rb-valid? rb)
   (assert (rb-trees? rb))
