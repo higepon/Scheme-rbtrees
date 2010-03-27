@@ -84,6 +84,6 @@
   (assert (rb-trees? rb))
   (if (null? (rb-trees-root rb))
       #t
-      #f))
+      #t))
 
 )
