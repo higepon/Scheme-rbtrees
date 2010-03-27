@@ -3,6 +3,7 @@
         (rbtrees))
 
 (let ([rb (make-rb-trees)])
-  (check (rb-trees? rb) => #t))
+  (check (rb-trees? rb) => #t)
+  (check (check-invariant rb) #t))
 
 (check-report)
