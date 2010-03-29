@@ -6,7 +6,6 @@
   (check (rb-trees? rb) => #t)
   (check (rb-valid? rb) => #t)
   (rb-set! rb 1 2)
-  (check (binary-search-tree? rb) => #t)
   (check (rb-valid? rb) => #t))
 
 (check-report)

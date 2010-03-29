@@ -42,9 +42,6 @@
    rb-valid?
    rb-set!
    make-rb-trees
-
-   ;; for test
-   binary-search-tree?
    )
   (import (rnrs))
 
@@ -87,7 +84,7 @@
   (assert (rb-trees? rb))
   (if (null? (rb-trees-root rb))
       #t
-      #t))
+      (binary-search-tree? rb)))
 
 ;; internal procedures
 (define (binary-search-tree? rb)
