@@ -42,6 +42,9 @@
    rb-valid?
    rb-set!
    make-rb-trees
+
+   ;; for test
+   binary-search-tree?
    )
   (import (rnrs))
 
@@ -88,6 +91,12 @@
 
 ;; internal procedures
 (define (binary-search-tree? rb)
-  #t)
-
+  (define (rec node)
+    (if (null? node)
+        '()
+        (append (rec (node-left node))
+                (list (node-key node))
+                (rec (node-right node)))))
+  (let ([all-keys (rec (rb-trees-root rb))])
+    (equal? (list-sort >= all-keys) all-keys)))
 )
