@@ -82,9 +82,11 @@
 
 (define (rb-valid? rb)
   (assert (rb-trees? rb))
-  (if (null? (rb-trees-root rb))
-      #t
-      (binary-search-tree? rb)))
+  (cond
+   [(null? (rb-trees-root rb)) #t]
+   [else
+    (and (binary-search-tree? rb)
+         (eq? 'black (node-color (rb-trees-root rb))))]))
 
 ;; internal procedures
 (define (binary-search-tree? rb)
