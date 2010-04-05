@@ -87,7 +87,8 @@
    [else
     (and (binary-search-tree? rb)
          (black? (rb-trees-root rb))
-         (all-leaves-black? (rb-trees-root rb)))]))
+         (all-leaves-black? (rb-trees-root rb))
+         (red-has-two-black? (rb-trees-root rb)))]))
 
 (define (leaf? node)
   (and (null? (node-left node))
