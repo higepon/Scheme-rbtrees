@@ -89,6 +89,17 @@
          (eq? 'black (node-color (rb-trees-root rb)))
          (all-leaves-black? (rb-trees-root rb)))]))
 
+;; todo leaf?
+(define (all-leaves-black? node)
+  (cond
+   [(null? node) #t]
+   [(and (null? (node-left node))
+         (null? (node-right node)))
+    (eq? 'black (node-color node))]
+   [else
+    (and (all-leaves-black? (node-left node))
+         (all-leaves-black? (node-right node)))]))
+
 ;; internal procedures
 (define (binary-search-tree? rb)
   (define (rec node)
