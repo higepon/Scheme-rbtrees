@@ -86,16 +86,21 @@
    [(null? (rb-trees-root rb)) #t]
    [else
     (and (binary-search-tree? rb)
-         (eq? 'black (node-color (rb-trees-root rb)))
+         (black? (rb-trees-root rb))
          (all-leaves-black? (rb-trees-root rb)))]))
 
+(define (leaf? node)
+  (and (null? (node-left node))
+       (null? (node-right node))))
+
+(define (black? node)
+  (eq? 'black (node-color node)))
 ;; todo leaf?
 (define (all-leaves-black? node)
   (cond
    [(null? node) #t]
-   [(and (null? (node-left node))
-         (null? (node-right node)))
-    (eq? 'black (node-color node))]
+   [(leaf? node)
+    (black? node)]
    [else
     (and (all-leaves-black? (node-left node))
          (all-leaves-black? (node-right node)))]))
