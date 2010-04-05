@@ -86,7 +86,8 @@
    [(null? (rb-trees-root rb)) #t]
    [else
     (and (binary-search-tree? rb)
-         (eq? 'black (node-color (rb-trees-root rb))))]))
+         (eq? 'black (node-color (rb-trees-root rb)))
+         (all-leaves-black? (rb-trees-root rb)))]))
 
 ;; internal procedures
 (define (binary-search-tree? rb)
