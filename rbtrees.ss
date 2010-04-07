@@ -80,15 +80,31 @@
           (loop (node-left x) x)
           (loop (node-right x) x))])))
 
+(define (node-fold proc init node)
+  (cond
+   [(not (null? (node-left node)))
+    (let ([x (proc (node-fold proc init (node-left node)) node)])
+      (if (not (null? (node-right node)))
+          (proc x (node-right node))
+          x))]
+   [else
+    (let ([x (proc init node)])
+      (if (not (null? (node-right node)))
+          (proc x (node-right node))
+          x))]))
+
+
 (define (rb-valid? rb)
   (assert (rb-trees? rb))
   (cond
    [(null? (rb-trees-root rb)) #t]
    [else
+    (display (black-hight-same? (rb-trees-root rb)))
     (and (binary-search-tree? rb)
          (black? (rb-trees-root rb))
          (all-leaves-black? (rb-trees-root rb))
-         (red-has-two-black? (rb-trees-root rb)))]))
+         (red-has-two-black? (rb-trees-root rb))
+         (node-fold (lambda (accum node) (and accum (black-hight-same? node))) #t (rb-trees-root rb)))]))
 
 (define (leaf? node)
   (and (null? (node-left node))
@@ -96,7 +112,11 @@
 
 (define (black? node)
   (eq? 'black (node-color node)))
-;; todo leaf?
+
+(define (red? node)
+  (eq? 'red (node-color node)))
+
+
 (define (all-leaves-black? node)
   (cond
    [(null? node) #t]
@@ -105,6 +125,38 @@
    [else
     (and (all-leaves-black? (node-left node))
          (all-leaves-black? (node-right node)))]))
+
+(define (red-has-two-black? node)
+  (cond
+   [(null? node) #t]
+   [(red? node)
+    (and (black? (node-left node))
+         (black? (node-right node))
+         (red-has-two-black? (node-left node))
+         (red-has-two-black? (node-right node)))]
+   [else
+    (and (red-has-two-black? (node-left node))
+         (red-has-two-black? (node-right node)))]))
+
+(define (black-hight-same? node)
+  (define height* '())
+  (define (add-height! h)
+    (set! height* (cons h height*)))
+  (define (rec h node)
+    (cond
+     [(null? node) '()]
+     [else
+      (let ([h (if (black? node) (+ h 1) h)])
+       (and (not (null? (node-left node)))
+            (rec h (node-left node)))
+       (and (not (null? (node-right node)))
+            (rec h (node-right node)))
+       (add-height! h))]))
+  (rec 0 node)
+  (let ([height (car height*)])
+    (for-all (lambda (x) (= height x)) height*)))
+
+
 
 ;; internal procedures
 (define (binary-search-tree? rb)
