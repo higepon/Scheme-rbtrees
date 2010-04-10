@@ -39,7 +39,7 @@
 (library (rbtrees)
   (export
    rb-trees?
-   rb-valid?
+   check-rb
    rb-set!
    make-rb-trees
    )
@@ -70,10 +70,13 @@
       (let ([z (make-node '() '() y key value 'black)])
         (cond
          [(null? y)
+          (node-color-set! z 'black)
           (rb-trees-root-set! rb z)]
          [(< key (node-key y))
+          (node-color-set! z 'red)
           (node-left-set! y z)]
          [else
+          (node-color-set! z 'red)
           (node-right-set! y z)]))]
      [else
       (if (< key (node-key x))
@@ -94,17 +97,23 @@
           x))]))
 
 
-(define (rb-valid? rb)
+(define (check-rb rb)
+  (define (raise-error reason)
+    (error 'check-rb reason))
   (assert (rb-trees? rb))
   (cond
    [(null? (rb-trees-root rb)) #t]
    [else
-    (display (black-hight-same? (rb-trees-root rb)))
-    (and (binary-search-tree? rb)
-         (black? (rb-trees-root rb))
-         (all-leaves-black? (rb-trees-root rb))
-         (red-has-two-black? (rb-trees-root rb))
-         (node-fold (lambda (accum node) (and accum (black-hight-same? node))) #t (rb-trees-root rb)))]))
+    (and (or (binary-search-tree? rb)
+             (raise-error "not binary-search-tree"))
+         (or (black? (rb-trees-root rb))
+             (raise-error "root is not black"))
+         (or (all-leaves-black? (rb-trees-root rb))
+             (raise-error "root is not black"))
+         (or (red-has-two-black? (rb-trees-root rb))
+             (raise-error "red should have black childlen"))
+         (or (node-fold (lambda (accum node) (and accum (black-hight-same? node))) #t (rb-trees-root rb))
+             (raise-error "black height should be same")))]))
 
 (define (leaf? node)
   (and (null? (node-left node))
@@ -167,5 +176,5 @@
                 (list (node-key node))
                 (rec (node-right node)))))
   (let ([all-keys (rec (rb-trees-root rb))])
-    (equal? (list-sort >= all-keys) all-keys)))
+    (equal? (list-sort <= all-keys) all-keys)))
 )
