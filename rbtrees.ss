@@ -105,8 +105,8 @@
              (raise-error "not binary-search-tree"))
          (or (black? (rb-trees-root rb))
              (raise-error "root is not black"))
-         (or (all-leaves-black? (rb-trees-root rb))
-             (raise-error "root is not black"))
+;;          (or (all-leaves-black? (rb-trees-root rb))
+;;              (raise-error "all-leaves are not black"))
          (or (red-has-two-black? (rb-trees-root rb))
              (raise-error "red should have black childlen"))
          (or (node-fold #t (lambda (accum node) (and accum (black-hight-same? node))) (rb-trees-root rb))
@@ -136,8 +136,8 @@
   (cond
    [(null? node) #t]
    [(red? node)
-    (and (black? (node-left node))
-         (black? (node-right node))
+    (and (or (null? (node-left node)) (black? (node-left node)))
+         (or (null? (node-right node)) (black? (node-right node)))
          (red-has-two-black? (node-left node))
          (red-has-two-black? (node-right node)))]
    [else
@@ -165,13 +165,14 @@
 (define (rb->dot rb . port)
   (define (print-node-color node port)
     (if (black? node)
-        (format port "    ~s [style = filled];\n" (node-key node))
+        (format port "    ~s [style = filled, fillcolor = \"#cccccc\"];\n" (node-key node))
         (format port "    ~s [style = filled, color = \"#336666\", fillcolor = \"#CC9999\"];\n" (node-key node))))
   (let ([port (if (pair? port) (car port) (current-output-port))])
     (format port "digraph rbtrees {\n")
     (node-fold '() (lambda (accum node)
                      (let ([left (node-left node)]
                            [right (node-right node)])
+                       (print-node-color node port)
                        (when (not (null? left))
                          (print-node-color left port)
                          (format port "    ~s -> ~s;\n" (node-key node) (node-key left)))
