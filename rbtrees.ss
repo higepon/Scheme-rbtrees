@@ -42,8 +42,10 @@
    check-rb
    rb-set!
    make-rb-trees
+   rb->dot
    )
-  (import (rnrs))
+  (import (rnrs)
+          (srfi :48))
 
 (define-record-type rb-trees
   (fields
@@ -83,18 +85,13 @@
           (loop (node-left x) x)
           (loop (node-right x) x))])))
 
-(define (node-fold proc init node)
+(define (node-fold init proc node)
   (cond
-   [(not (null? (node-left node)))
-    (let ([x (proc (node-fold proc init (node-left node)) node)])
-      (if (not (null? (node-right node)))
-          (proc x (node-right node))
-          x))]
+   [(null? node)
+    init]
    [else
-    (let ([x (proc init node)])
-      (if (not (null? (node-right node)))
-          (proc x (node-right node))
-          x))]))
+    (let ([accum (proc init node)])
+      (node-fold (node-fold accum proc (node-left node)) proc (node-right node)))]))
 
 
 (define (check-rb rb)
@@ -112,7 +109,7 @@
              (raise-error "root is not black"))
          (or (red-has-two-black? (rb-trees-root rb))
              (raise-error "red should have black childlen"))
-         (or (node-fold (lambda (accum node) (and accum (black-hight-same? node))) #t (rb-trees-root rb))
+         (or (node-fold #t (lambda (accum node) (and accum (black-hight-same? node))) (rb-trees-root rb))
              (raise-error "black height should be same")))]))
 
 (define (leaf? node)
@@ -165,7 +162,26 @@
   (let ([height (car height*)])
     (for-all (lambda (x) (= height x)) height*)))
 
+(define (rb->dot rb . port)
+  (define (print-node-color node port)
+    (if (black? node)
+        (format port "    ~s [style = filled];\n" (node-key node))
+        (format port "    ~s [style = filled, color = \"#336666\", fillcolor = \"#CC9999\"];\n" (node-key node))))
+  (let ([port (if (pair? port) (car port) (current-output-port))])
+    (format port "digraph rbtrees {\n")
+    (node-fold '() (lambda (accum node)
+                     (let ([left (node-left node)]
+                           [right (node-right node)])
+                       (when (not (null? left))
+                         (print-node-color left port)
+                         (format port "    ~s -> ~s;\n" (node-key node) (node-key left)))
+                       (when (not (null? right))
+                         (print-node-color right port)
+                         (format port "    ~s -> ~s;\n" (node-key node) (node-key right)))
 
+                     ))
+               (rb-trees-root rb))
+    (display "}\n" port)))
 
 ;; internal procedures
 (define (binary-search-tree? rb)

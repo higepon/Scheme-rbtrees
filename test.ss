@@ -8,6 +8,9 @@
   (rb-set! rb 1 'val1)
   (check (check-rb rb) => #t)
   (rb-set! rb 2 'val2)
-  (check (check-rb rb) => #t))
+;  (check (check-rb rb) => #t)
+  (let ([port (open-output-file "rb-trees.dot")])
+    (rb->dot rb port)
+    (close-port port)))
 
 (check-report)
