@@ -122,6 +122,71 @@
 (define (red? node)
   (eq? 'red (node-color node)))
 
+(define (left-rotate rb x)
+  (let ([y (node-right x)])
+    (node-right-set! x (node-left y))
+    (when (not (null? (node-left y)))
+      (node-parent-set! (node-left y) x))
+    (node-parent-set! y (node-parent x))
+    (if (null? (node-parent x))
+        (rb-root-set! rb y)
+        (if (eq? x (node-left (node-parent x)))
+            (node-left-set! (node-parent x) y)
+            (node-right-set! (node-parent x) y)))
+    (node-left-set! y x)
+    (node-parent-set! x y)))
+
+(define (right-rotate rb x)
+  (let ([y (node-left x)])
+    (node-left-set! x (node-right y))
+    (when (not (null? (node-right y)))
+      (node-parent-set! (node-right y) x))
+    (node-parent-set! y (node-parent x))
+    (if (null? (node-parent x))
+        (rb-root-set! rb y)
+        (if (eq? x (node-right (node-parent x)))
+            (node-right-set! (node-parent x) y)
+            (node-left-set! (node-parent x) y)))
+    (node-right-set! y x)
+    (node-parent-set! x y)))
+
+(define (insert-fixup rb z)
+  (cond
+   [(red? (node-parent z))
+    (cond
+     [(eq? (node-parent z) (node-left (node-parent (node-parent z))))
+      (let ([y (node-right (node-parent (node-parent z)))])
+        (cond
+         [(red? y)
+          (node-color-set! (node-parent z) 'black)
+          (node-color-set! y 'black)
+          (node-color-set! y (node-parent (node-parent z)) 'red)
+          (insert-fixup rb (node-parent (node-parent z)))]
+         [else
+          (when (eq? z (nod-right (node-parent z)))
+            (set! z (node-parent z))
+            (left-rotate rb z))
+          (node-color-set! (node-parent z) 'black)
+          (node-color-set! y (node-parent (node-parent z)) 'red)
+          (right-rotate rb (node-parent (node-parent z)))
+          (insert-fixup rb z)]))]
+     [else
+      (let ([y (node-left (node-parent (node-parent z)))])
+        (cond
+         [(red? y)
+          (node-color-set! (node-parent z) 'black)
+          (node-color-set! y 'black)
+          (node-color-set! y (node-parent (node-parent z)) 'red)
+          (insert-fixup rb (node-parent (node-parent z)))]
+         [else
+          (when (eq? z (nod-left (node-parent z)))
+            (set! z (node-parent z))
+            (right-rotate rb z))
+          (node-color-set! (node-parent z) 'black)
+          (node-color-set! y (node-parent (node-parent z)) 'red)
+          (left-rotate rb (node-parent (node-parent z)))
+          (insert-fixup rb z)]))])]
+   [else '()]))
 
 (define (all-leaves-black? node)
   (cond
@@ -162,6 +227,12 @@
   (let ([height (car height*)])
     (for-all (lambda (x) (= height x)) height*)))
 
+(define nil-index 0)
+(define (gen-nil)
+  (let ([x (format "Nil~d" nil-index)])
+    (set! nil-index (+ nil-index 1))
+    x))
+
 (define (rb->dot rb . port)
   (define (print-node-color node port)
     (if (black? node)
@@ -173,13 +244,22 @@
                      (let ([left (node-left node)]
                            [right (node-right node)])
                        (print-node-color node port)
-                       (when (not (null? left))
+                       (cond
+                        [(null? left)
+                         (let ([nil (gen-nil)])
+                           (format port "    ~s [style = filled, fillcolor = \"#cccccc\"];\n" nil)
+                           (format port "    ~s -> ~s;\n" (node-key node) nil))]
+                        [else
                          (print-node-color left port)
-                         (format port "    ~s -> ~s;\n" (node-key node) (node-key left)))
-                       (when (not (null? right))
+                         (format port "    ~s -> ~s;\n" (node-key node) (node-key left))])
+                       (cond
+                        [(null? right)
+                         (let ([nil (gen-nil)])
+                           (format port "    ~s [style = filled, fillcolor = \"#cccccc\"];\n" nil)
+                           (format port "    ~s -> ~s;\n" (node-key node) nil))]
+                        [else
                          (print-node-color right port)
-                         (format port "    ~s -> ~s;\n" (node-key node) (node-key right)))
-
+                         (format port "    ~s -> ~s;\n" (node-key node) (node-key right))])
                      ))
                (rb-trees-root rb))
     (display "}\n" port)))
