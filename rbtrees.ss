@@ -79,7 +79,8 @@
           (node-left-set! y z)]
          [else
           (node-color-set! z 'red)
-          (node-right-set! y z)]))]
+          (node-right-set! y z)
+          (insert-fixup rb z)]))]
      [else
       (if (< key (node-key x))
           (loop (node-left x) x)
@@ -129,7 +130,7 @@
       (node-parent-set! (node-left y) x))
     (node-parent-set! y (node-parent x))
     (if (null? (node-parent x))
-        (rb-root-set! rb y)
+        (rb-trees-root-set! rb y)
         (if (eq? x (node-left (node-parent x)))
             (node-left-set! (node-parent x) y)
             (node-right-set! (node-parent x) y)))
@@ -143,7 +144,7 @@
       (node-parent-set! (node-right y) x))
     (node-parent-set! y (node-parent x))
     (if (null? (node-parent x))
-        (rb-root-set! rb y)
+        (rb-trees-root-set! rb y)
         (if (eq? x (node-right (node-parent x)))
             (node-right-set! (node-parent x) y)
             (node-left-set! (node-parent x) y)))
@@ -152,38 +153,38 @@
 
 (define (insert-fixup rb z)
   (cond
-   [(red? (node-parent z))
+   [(and (not (null? (node-parent z))) (red? (node-parent z)))
     (cond
      [(eq? (node-parent z) (node-left (node-parent (node-parent z))))
       (let ([y (node-right (node-parent (node-parent z)))])
         (cond
-         [(red? y)
+         [(and (not (null? y)) (red? y))
           (node-color-set! (node-parent z) 'black)
           (node-color-set! y 'black)
-          (node-color-set! y (node-parent (node-parent z)) 'red)
+          (node-color-set! (node-parent (node-parent z)) 'red)
           (insert-fixup rb (node-parent (node-parent z)))]
          [else
-          (when (eq? z (nod-right (node-parent z)))
+          (when (eq? z (node-right (node-parent z)))
             (set! z (node-parent z))
             (left-rotate rb z))
           (node-color-set! (node-parent z) 'black)
-          (node-color-set! y (node-parent (node-parent z)) 'red)
+          (node-color-set! (node-parent (node-parent z)) 'red)
           (right-rotate rb (node-parent (node-parent z)))
           (insert-fixup rb z)]))]
      [else
       (let ([y (node-left (node-parent (node-parent z)))])
         (cond
-         [(red? y)
+         [(and (not (null? y)) (red? y))
           (node-color-set! (node-parent z) 'black)
           (node-color-set! y 'black)
-          (node-color-set! y (node-parent (node-parent z)) 'red)
+          (node-color-set! (node-parent (node-parent z)) 'red)
           (insert-fixup rb (node-parent (node-parent z)))]
          [else
-          (when (eq? z (nod-left (node-parent z)))
+          (when (eq? z (node-left (node-parent z)))
             (set! z (node-parent z))
             (right-rotate rb z))
           (node-color-set! (node-parent z) 'black)
-          (node-color-set! y (node-parent (node-parent z)) 'red)
+          (node-color-set! (node-parent (node-parent z)) 'red)
           (left-rotate rb (node-parent (node-parent z)))
           (insert-fixup rb z)]))])]
    [else '()]))
