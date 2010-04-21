@@ -53,7 +53,7 @@
   (protocol
    (lambda (c)
      (lambda ()
-       (c '())))))
+       (c #f)))))
 
 (define-record-type node
   (fields
@@ -66,12 +66,12 @@
 
 (define (rb-set! rb key value)
   (let loop ([x (rb-trees-root rb)]
-             [y '()])
+             [y #f])
     (cond
-     [(null? x)
-      (let ([z (make-node '() '() y key value 'black)])
+     [(not x)
+      (let ([z (make-node #f #f y key value 'black)])
         (cond
-         [(null? y)
+         [(not y)
           (node-color-set! z 'black)
           (rb-trees-root-set! rb z)]
          [(< key (node-key y))
@@ -88,7 +88,7 @@
 
 (define (node-fold init proc node)
   (cond
-   [(null? node)
+   [(not node)
     init]
    [else
     (let ([accum (proc init node)])
@@ -100,7 +100,7 @@
     (error 'check-rb reason))
   (assert (rb-trees? rb))
   (cond
-   [(null? (rb-trees-root rb)) #t]
+   [(not (rb-trees-root rb)) #t]
    [else
     (and (or (binary-search-tree? rb)
              (raise-error "not binary-search-tree"))
@@ -114,8 +114,8 @@
              (raise-error "black height should be same")))]))
 
 (define (leaf? node)
-  (and (null? (node-left node))
-       (null? (node-right node))))
+  (and (not (node-left node))
+       (not (node-right node))))
 
 (define (black? node)
   (eq? 'black (node-color node)))
@@ -126,10 +126,10 @@
 (define (left-rotate rb x)
   (let ([y (node-right x)])
     (node-right-set! x (node-left y))
-    (when (not (null? (node-left y)))
+    (when (node-left y)
       (node-parent-set! (node-left y) x))
     (node-parent-set! y (node-parent x))
-    (if (null? (node-parent x))
+    (if (not (node-parent x))
         (rb-trees-root-set! rb y)
         (if (eq? x (node-left (node-parent x)))
             (node-left-set! (node-parent x) y)
@@ -140,10 +140,10 @@
 (define (right-rotate rb x)
   (let ([y (node-left x)])
     (node-left-set! x (node-right y))
-    (when (not (null? (node-right y)))
+    (when (node-right y)
       (node-parent-set! (node-right y) x))
     (node-parent-set! y (node-parent x))
-    (if (null? (node-parent x))
+    (if (not (node-parent x))
         (rb-trees-root-set! rb y)
         (if (eq? x (node-right (node-parent x)))
             (node-right-set! (node-parent x) y)
@@ -153,12 +153,12 @@
 
 (define (insert-fixup rb z)
   (cond
-   [(and (not (null? (node-parent z))) (red? (node-parent z)))
+   [(and (node-parent z) (red? (node-parent z)))
     (cond
      [(eq? (node-parent z) (node-left (node-parent (node-parent z))))
       (let ([y (node-right (node-parent (node-parent z)))])
         (cond
-         [(and (not (null? y)) (red? y))
+         [(and y (red? y))
           (node-color-set! (node-parent z) 'black)
           (node-color-set! y 'black)
           (node-color-set! (node-parent (node-parent z)) 'red)
@@ -174,7 +174,7 @@
      [else
       (let ([y (node-left (node-parent (node-parent z)))])
         (cond
-         [(and (not (null? y)) (red? y))
+         [(and y (red? y))
           (node-color-set! (node-parent z) 'black)
           (node-color-set! y 'black)
           (node-color-set! (node-parent (node-parent z)) 'red)
@@ -191,7 +191,7 @@
 
 (define (all-leaves-black? node)
   (cond
-   [(null? node) #t]
+   [(not node) #t]
    [(leaf? node)
     (black? node)]
    [else
@@ -200,10 +200,10 @@
 
 (define (red-has-two-black? node)
   (cond
-   [(null? node) #t]
+   [(not node) #t]
    [(red? node)
-    (and (or (null? (node-left node)) (black? (node-left node)))
-         (or (null? (node-right node)) (black? (node-right node)))
+    (and (or (not (node-left node)) (black? (node-left node)))
+         (or (not (node-right node)) (black? (node-right node)))
          (red-has-two-black? (node-left node))
          (red-has-two-black? (node-right node)))]
    [else
@@ -216,12 +216,12 @@
     (set! height* (cons h height*)))
   (define (rec h node)
     (cond
-     [(null? node) '()]
+     [(not node) '()]
      [else
       (let ([h (if (black? node) (+ h 1) h)])
-       (and (not (null? (node-left node)))
+       (and (node-left node)
             (rec h (node-left node)))
-       (and (not (null? (node-right node)))
+       (and (node-right node)
             (rec h (node-right node)))
        (add-height! h))]))
   (rec 0 node)
@@ -246,7 +246,7 @@
                            [right (node-right node)])
                        (print-node-color node port)
                        (cond
-                        [(null? left)
+                        [(not left)
                          (let ([nil (gen-nil)])
                            (format port "    ~s [style = filled, fillcolor = \"#cccccc\"];\n" nil)
                            (format port "    ~s -> ~s;\n" (node-key node) nil))]
@@ -254,7 +254,7 @@
                          (print-node-color left port)
                          (format port "    ~s -> ~s;\n" (node-key node) (node-key left))])
                        (cond
-                        [(null? right)
+                        [(not right)
                          (let ([nil (gen-nil)])
                            (format port "    ~s [style = filled, fillcolor = \"#cccccc\"];\n" nil)
                            (format port "    ~s -> ~s;\n" (node-key node) nil))]
@@ -268,7 +268,7 @@
 ;; internal procedures
 (define (binary-search-tree? rb)
   (define (rec node)
-    (if (null? node)
+    (if (not node)
         '()
         (append (rec (node-left node))
                 (list (node-key node))
