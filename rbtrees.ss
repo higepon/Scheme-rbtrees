@@ -106,8 +106,6 @@
              (raise-error "not binary-search-tree"))
          (or (black? (rb-trees-root rb))
              (raise-error "root is not black"))
-;;          (or (all-leaves-black? (rb-trees-root rb))
-;;              (raise-error "all-leaves are not black"))
          (or (red-has-two-black? (rb-trees-root rb))
              (raise-error "red should have black childlen"))
          (or (node-fold #t (lambda (accum node) (and accum (black-hight-same? node))) (rb-trees-root rb))
@@ -187,16 +185,8 @@
           (node-color-set! (node-parent (node-parent z)) 'red)
           (left-rotate rb (node-parent (node-parent z)))
           (insert-fixup rb z)]))])]
-   [else '()]))
-
-(define (all-leaves-black? node)
-  (cond
-   [(not node) #t]
-   [(leaf? node)
-    (black? node)]
-   [else
-    (and (all-leaves-black? (node-left node))
-         (all-leaves-black? (node-right node)))]))
+   [else '()])
+  (node-color-set! (rb-trees-root rb) 'black))
 
 (define (red-has-two-black? node)
   (cond
@@ -215,15 +205,15 @@
   (define (add-height! h)
     (set! height* (cons h height*)))
   (define (rec h node)
-    (cond
-     [(not node) '()]
-     [else
-      (let ([h (if (black? node) (+ h 1) h)])
-       (and (node-left node)
-            (rec h (node-left node)))
-       (and (node-right node)
-            (rec h (node-right node)))
-       (add-height! h))]))
+    (let ([h (if (black? node) (+ h 1) h)])
+      (cond
+       [(and (not (node-left node)) (not (node-right node)))
+        (add-height! h)]
+       [else
+        (when (node-left node)
+          (rec h (node-left node)))
+        (when (node-right node)
+          (rec h (node-right node)))])))
   (rec 0 node)
   (let ([height (car height*)])
     (for-all (lambda (x) (= height x)) height*)))
