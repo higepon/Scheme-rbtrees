@@ -8,6 +8,7 @@
   (rb-set! rb 1 'val1)
   (check (check-rb rb) => #t)
   (rb-set! rb 2 'val2)
+  (rb-set! rb 5 'val5)
   (check (check-rb rb) => #t)
  (rb-set! rb 3 'val3)
  (check (check-rb rb) => #t)
