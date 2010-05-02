@@ -1,4 +1,5 @@
 (import (rnrs)
+        (srfi :27)
         (srfi :78)
         (rbtrees))
 
@@ -17,10 +18,17 @@
   (check (check-rb rb) => #t))
 
 (let ([rb (make-rb-trees)])
+  (do ([i 0 (+ i 1)])
+      ((= i 100))
+    (rb-set! rb i i))
+  (check (check-rb rb) => #t))
+
+(let ([rb (make-rb-trees)])
   (let ([port (open-output-file "rb-trees.dot")])
-    (do ([i 0 (+ i 1)])
+    (do ([i 0 (+ i 1)]
+         [j (random-integer 100000) (random-integer 100000)])
         ((= i 100))
-      (rb-set! rb i i))
+      (rb-set! rb j j))
     (check (check-rb rb) => #t)
     (rb->dot rb port)
     (close-port port)))

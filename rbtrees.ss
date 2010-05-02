@@ -70,7 +70,7 @@
     (cond
      [(not x)
       (let ([z (make-node #f #f y key value 'black)])
-        (format #t "set key=~a y=~a\n" key y)
+;        (format #t "set key=~a y=~a\n" key y)
         (cond
          [(not y)
           (node-color-set! z 'black)
@@ -153,10 +153,8 @@
 (define (insert-fixup rb z)
   (cond
    [(and (node-parent z) (red? (node-parent z)))
-      (format (current-error-port) "fixup<1> key=~a\n" (node-key z))
     (cond
      [(eq? (node-parent z) (node-left (node-parent (node-parent z))))
-      (format (current-error-port) "fixup<1.1> key=~a\n" (node-key z))
       (let ([y (node-right (node-parent (node-parent z)))])
         (cond
          [(and y (red? y))
@@ -173,18 +171,14 @@
           (right-rotate rb (node-parent (node-parent z)))
           (insert-fixup rb z)]))]
      [else
-      (format (current-error-port) "fixup<2> key=~a\n" (node-key z))
       (let ([y (node-left (node-parent (node-parent z)))])
-        (display (and y (node-key y)))
         (cond
          [(and y (red? y))
-                         (display "else2")
           (node-color-set! (node-parent z) 'black)
           (node-color-set! y 'black)
           (node-color-set! (node-parent (node-parent z)) 'red)
           (insert-fixup rb (node-parent (node-parent z)))]
          [else
-                         (display "else3")
           (when (eq? z (node-left (node-parent z)))
             (set! z (node-parent z))
             (right-rotate rb z))
@@ -193,7 +187,6 @@
           (left-rotate rb (node-parent (node-parent z)))
           (insert-fixup rb z)]))])]
    [else
-    (format (current-error-port) "fixup<4> key=~a\n" (node-key z))
     '()])
   (node-color-set! (rb-trees-root rb) 'black))
 
