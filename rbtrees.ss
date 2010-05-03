@@ -150,44 +150,32 @@
     (node-right-set! y x)
     (node-parent-set! x y)))
 
+(define (insert-fixup-rec rb z node-fetch node-rotate1 node-rotate2)
+  (let ([y (node-fetch (node-parent (node-parent z)))])
+    (cond
+     [(and y (red? y))
+      (node-color-set! (node-parent z) 'black)
+      (node-color-set! y 'black)
+      (node-color-set! (node-parent (node-parent z)) 'red)
+      (insert-fixup rb (node-parent (node-parent z)))]
+     [else
+      (when (eq? z (node-fetch (node-parent z)))
+        (set! z (node-parent z))
+        (node-rotate1 rb z))
+      (node-color-set! (node-parent z) 'black)
+      (node-color-set! (node-parent (node-parent z)) 'red)
+      (node-rotate2 rb (node-parent (node-parent z)))
+      (insert-fixup rb z)])))
+
 (define (insert-fixup rb z)
   (cond
    [(and (node-parent z) (red? (node-parent z)))
     (cond
      [(eq? (node-parent z) (node-left (node-parent (node-parent z))))
-      (let ([y (node-right (node-parent (node-parent z)))])
-        (cond
-         [(and y (red? y))
-          (node-color-set! (node-parent z) 'black)
-          (node-color-set! y 'black)
-          (node-color-set! (node-parent (node-parent z)) 'red)
-          (insert-fixup rb (node-parent (node-parent z)))]
-         [else
-          (when (eq? z (node-right (node-parent z)))
-            (set! z (node-parent z))
-            (left-rotate rb z))
-          (node-color-set! (node-parent z) 'black)
-          (node-color-set! (node-parent (node-parent z)) 'red)
-          (right-rotate rb (node-parent (node-parent z)))
-          (insert-fixup rb z)]))]
+      (insert-fixup-rec rb z node-right left-rotate right-rotate)]
      [else
-      (let ([y (node-left (node-parent (node-parent z)))])
-        (cond
-         [(and y (red? y))
-          (node-color-set! (node-parent z) 'black)
-          (node-color-set! y 'black)
-          (node-color-set! (node-parent (node-parent z)) 'red)
-          (insert-fixup rb (node-parent (node-parent z)))]
-         [else
-          (when (eq? z (node-left (node-parent z)))
-            (set! z (node-parent z))
-            (right-rotate rb z))
-          (node-color-set! (node-parent z) 'black)
-          (node-color-set! (node-parent (node-parent z)) 'red)
-          (left-rotate rb (node-parent (node-parent z)))
-          (insert-fixup rb z)]))])]
-   [else
-    '()])
+      (insert-fixup-rec rb z node-left right-rotate left-rotate)])]
+   [else '()])
   (node-color-set! (rb-trees-root rb) 'black))
 
 (define (red-has-two-black? node)
