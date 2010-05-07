@@ -6,6 +6,7 @@
 (let ([rb (make-rb-trees)])
   (check (check-rb rb) => #t)
   (rb-set! rb 1 'val1)
+  (check (rb-get 1) => 'val1)
   (check (check-rb rb) => #t)
   (rb-set! rb 2 'val2)
   (rb-set! rb 5 'val5)
