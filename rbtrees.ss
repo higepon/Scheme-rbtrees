@@ -66,7 +66,17 @@
    (mutable color)))
 
 (define (rb-get rb key)
-  'val1)
+  (rb-get-rec (rb-trees-root rb) key))
+
+(define (rb-get-rec node key)
+  (cond
+   [(not node) (error 'rb-get (format "key = ~a not found" key) key)]
+   [(= key (node-key node))
+    (node-value node)]
+   [(> key (node-key node))
+    (rb-get-rec (node-right node) key)]
+   [else
+    (rb-get-rec (node-left node) key)]))
 
 (define (rb-set! rb key value)
   (let loop ([x (rb-trees-root rb)]
