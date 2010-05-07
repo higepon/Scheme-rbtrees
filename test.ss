@@ -4,6 +4,9 @@
         (rbtrees))
 
 (let ([rb (make-rb-trees)])
+
+  (check (rb-get rb 1 'not-found) => 'not-found)
+
   (check (check-rb rb) => #t)
   (rb-set! rb 1 'val1)
   (check (rb-get rb 1) => 'val1)
