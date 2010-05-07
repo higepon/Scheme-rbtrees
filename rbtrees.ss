@@ -65,12 +65,15 @@
    (mutable value)
    (mutable color)))
 
-(define (rb-get rb key)
-  (rb-get-rec (rb-trees-root rb) key))
+(define (rb-get rb key . fallback)
+  (apply rb-get-rec (rb-trees-root rb) key fallback))
 
-(define (rb-get-rec node key)
+(define (rb-get-rec node key . fallback)
   (cond
-   [(not node) (error 'rb-get (format "key = ~a not found" key) key)]
+   [(not node)
+    (if (pair? fallback)
+        (car fallback)
+        (error 'rb-get (format "key = ~a not found" key) key))]
    [(= key (node-key node))
     (node-value node)]
    [(> key (node-key node))
