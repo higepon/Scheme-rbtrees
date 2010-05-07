@@ -41,6 +41,7 @@
    rb-trees?
    check-rb
    rb-set!
+   rb-delete!
    rb-get
    make-rb-trees
    rb->dot
@@ -80,6 +81,9 @@
     (rb-get-rec (node-right node) key)]
    [else
     (rb-get-rec (node-left node) key)]))
+
+(define (rb-delete! rb key)
+  #f)
 
 (define (rb-set! rb key value)
   (let loop ([x (rb-trees-root rb)]
