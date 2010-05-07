@@ -83,6 +83,11 @@
     (rb-get-rec (node-left node) key)]))
 
 (define (rb-delete! rb key)
+  (let ([node (rb-get rb key)])
+    (when node
+        (node-delete! rb node))))
+
+(define (node-delete! rb node)
   #f)
 
 (define (rb-set! rb key value)
