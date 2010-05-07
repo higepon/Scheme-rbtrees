@@ -41,6 +41,7 @@
    rb-trees?
    check-rb
    rb-set!
+   rb-get
    make-rb-trees
    rb->dot
    )
@@ -63,6 +64,9 @@
    (mutable key)
    (mutable value)
    (mutable color)))
+
+(define (rb-get rb key)
+  'val1)
 
 (define (rb-set! rb key value)
   (let loop ([x (rb-trees-root rb)]
