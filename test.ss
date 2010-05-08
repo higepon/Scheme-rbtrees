@@ -48,6 +48,7 @@
 
   (rb-delete! rb 1)
   (check (rb-get rb 1 'not-found) => 'not-found)
+  (check (check-rb rb) => #t)
 
 )
 
