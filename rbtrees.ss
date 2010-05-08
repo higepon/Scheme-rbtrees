@@ -67,28 +67,72 @@
    (mutable color)))
 
 (define (rb-get rb key . fallback)
-  (apply rb-get-rec (rb-trees-root rb) key fallback))
+  (let ([node (rb-get-node (rb-trees-root rb) key)])
+    (cond
+     [node (node-value node)]
+     [else
+      (if (pair? fallback)
+          (car fallback)
+          (error 'rb-get (format "key = ~a not found" key) key))])))
 
-(define (rb-get-rec node key . fallback)
+(define (rb-get-node node key)
   (cond
-   [(not node)
-    (if (pair? fallback)
-        (car fallback)
-        (error 'rb-get (format "key = ~a not found" key) key))]
+   [(not node) #f]
    [(= key (node-key node))
-    (node-value node)]
+    node]
    [(> key (node-key node))
-    (rb-get-rec (node-right node) key)]
+    (rb-get-node (node-right node) key)]
    [else
-    (rb-get-rec (node-left node) key)]))
+    (rb-get-node (node-left node) key)]))
 
 (define (rb-delete! rb key)
-  (let ([node (rb-get rb key)])
+  (let ([node (rb-get-node (rb-trees-root rb) key)])
     (when node
         (node-delete! rb node))))
 
-(define (node-delete! rb node)
-  #f)
+(define (tree-successor x)
+  (cond
+   [(node-right x)
+    (tree-minimum (node-right x))]
+   [else
+    (let ([y (node-parent x)])
+      (let loop ([x x]
+                 [y y])
+        (cond
+         [(or y (not (eq? x (node-right y))))
+          y]
+         [else
+          (loop y (node-parent y))])))]))
+
+(define (tree-minimum x)
+  (if (node-left x)
+      (tree-minimum (node-left x))
+      x))
+
+(define (rb-delete-fixup rb x)
+  #f
+)
+
+(define (node-delete! rb z)
+  (let* ([y (if (or (not (node-left z)) (not (node-right z)))
+                z
+                (tree-successor z))]
+         [x (if (node-left y) (node-left y) (node-right y))])
+    (node-parent-set! x (node-parent y))
+    (cond
+     [(not (node-parent y))
+      (rb-trees-root-set! rb x)]
+     [(eq? y (node-left (node-parent y)))
+      (node-left-set! (node-parent y) x)]
+     [else
+      (node-right-set! (node-parent y) x)])
+    (when (not (eq? y z))
+      (node-key-set! z (node-key y))
+      (node-value-set! z (node-value y))
+      (node-color-set! z (node-color y)))
+    (when (black? y)
+      (rb-delete-fixup rb x))
+    y))
 
 (define (rb-set! rb key value)
   (let loop ([x (rb-trees-root rb)]
