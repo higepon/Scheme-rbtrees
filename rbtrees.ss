@@ -110,15 +110,14 @@
       x))
 
 (define (rb-delete-fixup rb x)
-  (let loop ([x x]
-             [w '()])
+  (let loop ([x x])
     (cond
      [(or (eq? x (rb-trees-root rb)) (red? x))
       (node-color-set! x 'black)]
      [else
       (cond
        [(eq? x (node-left (node-parent x)))
-        (set! w (node-right (node-parent x)))
+        (let ([w (node-right (node-parent x))])
         (when (red? w)
           (node-color-set! w 'black)
           (node-color-set! (node-parent x))
@@ -139,9 +138,9 @@
         (node-color-set! (node-right w) 'black)
         (left-rotate rb (node-parent x))
         (set! x (rb-trees-root rb))
-        (loop x w)]
+        (loop x))]
        [else
-        (set! w (node-left (node-parent x)))
+        (let ([w (node-left (node-parent x))])
         (when (red? w)
           (node-color-set! w 'black)
           (node-color-set! (node-parent x))
@@ -162,7 +161,7 @@
         (node-color-set! (node-left w) 'black)
         (right-rotate rb (node-parent x))
         (set! x (rb-trees-root rb))
-        (loop x w)
+        (loop x))
         ]
        )])))
 
