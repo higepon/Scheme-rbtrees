@@ -137,8 +137,7 @@
         (node-color-set! (node-parent x) 'black)
         (node-color-set! (node-right w) 'black)
         (left-rotate rb (node-parent x))
-        (set! x (rb-trees-root rb))
-        (loop x))]
+        (loop (rb-trees-root rb)))]
        [else
         (let ([w (node-left (node-parent x))])
         (when (red? w)
@@ -160,8 +159,7 @@
         (node-color-set! (node-parent x) 'black)
         (node-color-set! (node-left w) 'black)
         (right-rotate rb (node-parent x))
-        (set! x (rb-trees-root rb))
-        (loop x))
+        (loop (rb-trees-root rb)))
         ]
        )])))
 
