@@ -110,8 +110,61 @@
       x))
 
 (define (rb-delete-fixup rb x)
-  #f
-)
+  (let loop ([x x]
+             [w '()])
+    (cond
+     [(or (eq? x (rb-trees-root rb)) (red? x))
+      (node-color-set! x 'black)]
+     [else
+      (cond
+       [(eq? x (node-left (node-parent x)))
+        (set! w (node-right (node-parent x)))
+        (when (red? w)
+          (node-color-set! w 'black)
+          (node-color-set! (node-parent x))
+          (left-rotate rb (node-parent x))
+          (set! w (node-right (node-parent x))))
+        (cond
+         [(and (black? (node-left w)) (black? (node-right w)))
+          (node-color-set! w 'red)
+          (set! x (node-parent x))]
+         [(black? (node-right w))
+          (node-color-set! (node-left w) 'black)
+          (node-color-set! w 'red)
+          (right-rotate rb w)
+          (set! w (node-right (node-parent x)))]
+         [else '()])
+        (node-color-set! w (node-color (node-parent x)))
+        (node-color-set! (node-parent x) 'black)
+        (node-color-set! (node-right w) 'black)
+        (left-rotate rb (node-parent x))
+        (set! x (rb-trees-root rb))
+        (loop x w)]
+       [else
+        (set! w (node-left (node-parent x)))
+        (when (red? w)
+          (node-color-set! w 'black)
+          (node-color-set! (node-parent x))
+          (right-rotate rb (node-parent x))
+          (set! w (node-left (node-parent x))))
+        (cond
+         [(and (black? (node-right w)) (black? (node-left w)))
+          (node-color-set! w 'red)
+          (set! x (node-parent x))]
+         [(black? (node-left w))
+          (node-color-set! (node-right w) 'black)
+          (node-color-set! w 'red)
+          (left-rotate rb w)
+          (set! w (node-left (node-parent x)))]
+         [else '()])
+        (node-color-set! w (node-color (node-parent x)))
+        (node-color-set! (node-parent x) 'black)
+        (node-color-set! (node-left w) 'black)
+        (right-rotate rb (node-parent x))
+        (set! x (rb-trees-root rb))
+        (loop x w)
+        ]
+       )])))
 
 (define (node-delete! rb z)
   (let* ([y (if (or (not (node-left z)) (not (node-right z)))
