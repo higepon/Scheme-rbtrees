@@ -109,6 +109,28 @@
       (tree-minimum (node-left x))
       x))
 
+(define (rb-delete-fixup-rec rb x node-next1 node-next2)
+  (let ([w (node-next2 (node-parent x))])
+    (when (red? w)
+      (node-color-set! w 'black)
+      (node-color-set! (node-parent x))
+      (left-rotate rb (node-parent x))
+      (set! w (node-next2 (node-parent x))))
+    (cond
+     [(and (black? (node-next1 w)) (black? (node-next2 w)))
+      (node-color-set! w 'red)
+      (set! x (node-parent x))]
+     [(black? (node-next2 w))
+      (node-color-set! (node-next1 w) 'black)
+      (node-color-set! w 'red)
+      (right-rotate rb w)
+      (set! w (node-next2 (node-parent x)))]
+     [else '()])
+    (node-color-set! w (node-color (node-parent x)))
+    (node-color-set! (node-parent x) 'black)
+    (node-color-set! (node-next2 w) 'black)
+    (left-rotate rb (node-parent x))))
+
 (define (rb-delete-fixup rb x)
   (let loop ([x x])
     (cond
@@ -117,51 +139,10 @@
      [else
       (cond
        [(eq? x (node-left (node-parent x)))
-        (let ([w (node-right (node-parent x))])
-        (when (red? w)
-          (node-color-set! w 'black)
-          (node-color-set! (node-parent x))
-          (left-rotate rb (node-parent x))
-          (set! w (node-right (node-parent x))))
-        (cond
-         [(and (black? (node-left w)) (black? (node-right w)))
-          (node-color-set! w 'red)
-          (set! x (node-parent x))]
-         [(black? (node-right w))
-          (node-color-set! (node-left w) 'black)
-          (node-color-set! w 'red)
-          (right-rotate rb w)
-          (set! w (node-right (node-parent x)))]
-         [else '()])
-        (node-color-set! w (node-color (node-parent x)))
-        (node-color-set! (node-parent x) 'black)
-        (node-color-set! (node-right w) 'black)
-        (left-rotate rb (node-parent x))
-        (loop (rb-trees-root rb)))]
+        (rb-delete-fixup-rec rb x node-left node-right)]
        [else
-        (let ([w (node-left (node-parent x))])
-        (when (red? w)
-          (node-color-set! w 'black)
-          (node-color-set! (node-parent x))
-          (right-rotate rb (node-parent x))
-          (set! w (node-left (node-parent x))))
-        (cond
-         [(and (black? (node-right w)) (black? (node-left w)))
-          (node-color-set! w 'red)
-          (set! x (node-parent x))]
-         [(black? (node-left w))
-          (node-color-set! (node-right w) 'black)
-          (node-color-set! w 'red)
-          (left-rotate rb w)
-          (set! w (node-left (node-parent x)))]
-         [else '()])
-        (node-color-set! w (node-color (node-parent x)))
-        (node-color-set! (node-parent x) 'black)
-        (node-color-set! (node-left w) 'black)
-        (right-rotate rb (node-parent x))
-        (loop (rb-trees-root rb)))
-        ]
-       )])))
+        (rb-delete-fixup-rec rb x node-right node-left)])
+      (loop (rb-trees-root rb))])))
 
 (define (node-delete! rb z)
   (let* ([y (if (or (not (node-left z)) (not (node-right z)))
