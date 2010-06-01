@@ -50,6 +50,11 @@
   (check (rb-get rb 1 'not-found) => 'not-found)
   (check (check-rb rb) => #t)
 
+  (rb-delete! rb 5)
+  (check (rb-get rb 5 'not-found) => 'not-found)
+  (check (check-rb rb) => #t)
+
+
 )
 
 (let ([rb (make-rb-trees)])
