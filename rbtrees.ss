@@ -193,9 +193,14 @@
    [(not node)
     init]
    [else
-    (let ([accum (proc init node)])
-      (node-fold (node-fold accum proc (node-left node)) proc (node-right node)))]))
-
+    (if (node-left node)
+        (let ([accum (node-fold init proc (node-left node))])
+          (if (node-right node)
+              (node-fold (proc accum node) proc (node-right node))
+              (proc accum node)))
+        (if (node-right node)
+            (node-fold (proc init node) proc (node-right node))
+            (proc init node)))]))
 
 (define (check-rb rb)
   (define (raise-error reason)
@@ -348,12 +353,16 @@
 
 ;; internal procedures
 (define (binary-search-tree? rb)
-  (define (rec node)
-    (if (not node)
-        '()
-        (append (rec (node-left node))
-                (list (node-key node))
-                (rec (node-right node)))))
-  (let ([all-keys (rec (rb-trees-root rb))])
-    (equal? (list-sort <= all-keys) all-keys)))
+  (call/cc (lambda (break)
+             (node-fold #f
+                        (lambda (prev-key node)
+                          (cond
+                           [(and prev-key (>= (node-key node) prev-key))
+                            (node-key node)]
+                           [(not prev-key)
+                            (node-key node)]
+                           [else
+                            (break #f)])) (rb-trees-root rb)))))
+
 )
+
