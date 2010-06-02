@@ -149,7 +149,8 @@
                 z
                 (tree-successor z))]
          [x (if (node-left y) (node-left y) (node-right y))])
-    (node-parent-set! x (node-parent y))
+    (when x
+      (node-parent-set! x (node-parent y)))
     (cond
      [(not (node-parent y))
       (rb-trees-root-set! rb x)]
