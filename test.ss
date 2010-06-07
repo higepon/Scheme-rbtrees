@@ -70,6 +70,15 @@
   (check (rb-get rb 5 'not-found) => 'not-found)
   (check (check-rb rb) => #t)
 
+  (rb-delete! rb 3)
+  (check (rb-get rb 3 'not-found) => 'not-found)
+  (check (check-rb rb) => #t)
+
+  (rb-delete! rb 0)
+  (check (rb-get rb 0 'not-found) => 'not-found)
+  (check (check-rb rb) => #t)
+
+
   (let ([port (open-output-file "rb-trees.dot")])
     (rb->dot rb port)
     (close-port port))
