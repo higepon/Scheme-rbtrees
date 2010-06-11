@@ -133,7 +133,6 @@
 
 (define (rb-delete-fixup rb x)
   (let loop ([x x])
-    (format (current-error-port) "x=~a ~a" x (if x (node-key x) #f))
     (cond
      [(or (eq? x (rb-trees-root rb)) (red? x))
       (node-color-set! x 'black)]
