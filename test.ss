@@ -88,11 +88,27 @@
 
 
 
-  (let ([port (open-output-file "rb-trees.dot")])
-    (rb->dot rb port)
-    (close-port port))
 
 
 )
+
+(let ([rb (make-rb-trees string=? string<?)])
+
+  (check (rb-get rb "abc" 'not-found) => 'not-found)
+
+  (rb-set! rb "abc" 'val1)
+  (check (rb-get rb "abc") => 'val1)
+  (check (check-rb rb) => #t)
+
+  (rb-set! rb "def" 'val2)
+  (check (rb-get rb "def") => 'val2)
+  (check (check-rb rb) => #t)
+
+  (rb-delete! rb "abc")
+  (check (rb-get rb "abc" 'not-found) => 'not-found)
+
+  (let ([port (open-output-file "rb-trees.dot")])
+    (rb->dot rb port)
+    (close-port port)))
 
 (check-report)
