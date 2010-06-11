@@ -51,11 +51,13 @@
 
 (define-record-type rb-trees
   (fields
-   (mutable root))
+   (mutable root)
+   (immutable  key=?)
+   (immutable key<?))
   (protocol
    (lambda (c)
-     (lambda ()
-       (c #f)))))
+     (lambda (key=? key<?)
+       (c #f key=? key<?)))))
 
 (define-record-type node
   (fields
@@ -67,7 +69,7 @@
    (mutable color)))
 
 (define (rb-get rb key . fallback)
-  (let ([node (rb-get-node (rb-trees-root rb) key)])
+  (let ([node (rb-get-node (rb-trees-key=? rb) (rb-trees-key<? rb) (rb-trees-root rb) key)])
     (cond
      [node (node-value node)]
      [else
@@ -75,18 +77,18 @@
           (car fallback)
           (error 'rb-get (format "key = ~a not found" key) key))])))
 
-(define (rb-get-node node key)
+(define (rb-get-node key=? key<? node key)
   (cond
    [(not node) #f]
-   [(= key (node-key node))
+   [(key=? key (node-key node))
     node]
-   [(< key (node-key node))
-    (rb-get-node (node-left node) key)]
+   [(key<? key (node-key node))
+    (rb-get-node key=? key<? (node-left node) key)]
    [else
-    (rb-get-node (node-right node) key)]))
+    (rb-get-node key=? key<? (node-right node) key)]))
 
 (define (rb-delete! rb key)
-  (let ([node (rb-get-node (rb-trees-root rb) key)])
+  (let ([node (rb-get-node (rb-trees-key=? rb) (rb-trees-key<? rb) (rb-trees-root rb) key)])
     (when node
         (node-delete! rb node))))
 
@@ -177,7 +179,7 @@
          [(not y)
           (node-color-set! z 'black)
           (rb-trees-root-set! rb z)]
-         [(< key (node-key y))
+         [((rb-trees-key<? rb) key (node-key y))
           (node-color-set! z 'red)
           (node-left-set! y z)]
          [else
@@ -185,7 +187,7 @@
           (node-right-set! y z)])
         (insert-fixup rb z))]
      [else
-      (if (< key (node-key x))
+      (if ((rb-trees-key<? rb) key (node-key x))
           (loop (node-left x) x)
           (loop (node-right x) x))])))
 
@@ -358,7 +360,7 @@
              (node-fold #f
                         (lambda (prev-key node)
                           (cond
-                           [(and prev-key (or (= prev-key (node-key node)) (< prev-key (node-key node))))
+                           [(and prev-key (or ((rb-trees-key=? rb) prev-key (node-key node)) ((rb-trees-key<? rb) prev-key (node-key node))))
                             (node-key node)]
                            [(not prev-key)
                             (node-key node)]
