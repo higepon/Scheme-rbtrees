@@ -80,10 +80,10 @@
    [(not node) #f]
    [(= key (node-key node))
     node]
-   [(> key (node-key node))
-    (rb-get-node (node-right node) key)]
+   [(< key (node-key node))
+    (rb-get-node (node-left node) key)]
    [else
-    (rb-get-node (node-left node) key)]))
+    (rb-get-node (node-right node) key)]))
 
 (define (rb-delete! rb key)
   (let ([node (rb-get-node (rb-trees-root rb) key)])
@@ -358,7 +358,7 @@
              (node-fold #f
                         (lambda (prev-key node)
                           (cond
-                           [(and prev-key (>= (node-key node) prev-key))
+                           [(and prev-key (or (= prev-key (node-key node)) (< prev-key (node-key node))))
                             (node-key node)]
                            [(not prev-key)
                             (node-key node)]
