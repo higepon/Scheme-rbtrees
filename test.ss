@@ -3,7 +3,7 @@
         (srfi :78)
         (rbtrees))
 
-(let ([rb (make-rb-trees)])
+(let ([rb (make-rb-trees = <)])
   (do ([i 0 (+ i 1)])
       ((= i 100))
     (rb-set! rb i i))
@@ -19,7 +19,7 @@
 ;;     (rb->dot rb port)
 ;;     (close-port port)))
 
-(let ([rb (make-rb-trees)])
+(let ([rb (make-rb-trees = <)])
 
   (check (rb-get rb 1 'not-found) => 'not-found)
 
