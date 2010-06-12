@@ -1,4 +1,4 @@
-; rbtrees.ss - Red-Black trees
+; rbtree.ss - Red-Black tree
 ;
 ;   Copyright (c) 2010  Higepon(Taro Minowa)  <higepon@users.sourceforge.jp>
 ;
@@ -27,31 +27,31 @@
 ;
 
 #|
-    Title: Red-Black trees
+    Title: Red-Black tree
 
     Example:
     (start code)
     (end code)
 
-    library: (rbtrees)
+    library: (rbtree)
 
 |#
-(library (rbtrees)
+(library (rbtree)
   (export
-   rb-trees?
-   check-rb
-   rb-set!
-   rb-keys
-   rb-delete!
-   rb-get
-   rb-size
-   make-rb-trees
-   rb->dot
+   rbtree?
+   check-rbtree
+   rbtree-set!
+   rbtree-keys
+   rbtree-delete!
+   rbtree-get
+   rbtree-size
+   make-rbtree
+   rbtree->dot
    )
   (import (rnrs)
           (srfi :48))
 
-(define-record-type rb-trees
+(define-record-type rbtree
   (fields
    (mutable root)
    (mutable size)
@@ -71,39 +71,36 @@
    (mutable value)
    (mutable color)))
 
-(define (rb-size rb)
-  (rb-trees-size rb))
-
-(define (rb-keys rb)
+(define (rbtree-keys rb)
   (reverse
    (node-fold '()
               (lambda (accum node)
                 (cons (node-key node) accum))
-              (rb-trees-root rb))))
+              (rbtree-root rb))))
 
-(define (rb-get rb key . fallback)
-  (let ([node (rb-get-node (rb-trees-key=? rb) (rb-trees-key<? rb) (rb-trees-root rb) key)])
+(define (rbtree-get rb key . fallback)
+  (let ([node (rbtree-get-node (rbtree-key=? rb) (rbtree-key<? rb) (rbtree-root rb) key)])
     (cond
      [node (node-value node)]
      [else
       (if (pair? fallback)
           (car fallback)
-          (error 'rb-get (format "key = ~a not found" key) key))])))
+          (error 'rbtree-get (format "key = ~a not found" key) key))])))
 
-(define (rb-get-node key=? key<? node key)
+(define (rbtree-get-node key=? key<? node key)
   (cond
    [(not node) #f]
    [(key=? key (node-key node))
     node]
    [(key<? key (node-key node))
-    (rb-get-node key=? key<? (node-left node) key)]
+    (rbtree-get-node key=? key<? (node-left node) key)]
    [else
-    (rb-get-node key=? key<? (node-right node) key)]))
+    (rbtree-get-node key=? key<? (node-right node) key)]))
 
-(define (rb-delete! rb key)
-  (let ([node (rb-get-node (rb-trees-key=? rb) (rb-trees-key<? rb) (rb-trees-root rb) key)])
+(define (rbtree-delete! rb key)
+  (let ([node (rbtree-get-node (rbtree-key=? rb) (rbtree-key<? rb) (rbtree-root rb) key)])
     (when node
-      (rb-trees-size-set! rb (- (rb-trees-size rb) 1))
+      (rbtree-size-set! rb (- (rbtree-size rb) 1))
       (node-delete! rb node))))
 
 (define (tree-successor x)
@@ -125,7 +122,7 @@
       (tree-minimum (node-left x))
       x))
 
-(define (rb-delete-fixup-rec rb x node-next1 node-next2)
+(define (rbtree-delete-fixup-rec rb x node-next1 node-next2)
   (let ([w (node-next2 (node-parent x))])
     (when (red? w)
       (node-color-set! w 'black)
@@ -147,18 +144,18 @@
     (node-color-set! (node-next2 w) 'black)
     (left-rotate rb (node-parent x))))
 
-(define (rb-delete-fixup rb x)
+(define (rbtree-delete-fixup rb x)
   (let loop ([x x])
     (cond
-     [(or (eq? x (rb-trees-root rb)) (red? x))
+     [(or (eq? x (rbtree-root rb)) (red? x))
       (node-color-set! x 'black)]
      [else
       (cond
        [(eq? x (node-left (node-parent x)))
-        (rb-delete-fixup-rec rb x node-left node-right)]
+        (rbtree-delete-fixup-rec rb x node-left node-right)]
        [else
-        (rb-delete-fixup-rec rb x node-right node-left)])
-      (loop (rb-trees-root rb))])))
+        (rbtree-delete-fixup-rec rb x node-right node-left)])
+      (loop (rbtree-root rb))])))
 
 (define (node-delete! rb z)
   (let* ([y (if (or (not (node-left z)) (not (node-right z)))
@@ -169,7 +166,7 @@
       (node-parent-set! x (node-parent y)))
     (cond
      [(not (node-parent y))
-      (rb-trees-root-set! rb x)]
+      (rbtree-root-set! rb x)]
      [(eq? y (node-left (node-parent y)))
       (node-left-set! (node-parent y) x)]
      [else
@@ -179,11 +176,11 @@
       (node-value-set! z (node-value y))
       (node-color-set! z (node-color y)))
     (when (and (black? y) x)
-      (rb-delete-fixup rb x))
+      (rbtree-delete-fixup rb x))
     y))
 
-(define (rb-set! rb key value)
-  (let loop ([x (rb-trees-root rb)]
+(define (rbtree-set! rb key value)
+  (let loop ([x (rbtree-root rb)]
              [y #f])
     (cond
      [(not x)
@@ -192,19 +189,19 @@
         (cond
          [(not y)
           (node-color-set! z 'black)
-          (rb-trees-size-set! rb (+ (rb-trees-size rb) 1))
-          (rb-trees-root-set! rb z)]
-         [((rb-trees-key<? rb) key (node-key y))
+          (rbtree-size-set! rb (+ (rbtree-size rb) 1))
+          (rbtree-root-set! rb z)]
+         [((rbtree-key<? rb) key (node-key y))
           (node-color-set! z 'red)
-          (rb-trees-size-set! rb (+ (rb-trees-size rb) 1))
+          (rbtree-size-set! rb (+ (rbtree-size rb) 1))
           (node-left-set! y z)]
          [else
-          (rb-trees-size-set! rb (+ (rb-trees-size rb) 1))
+          (rbtree-size-set! rb (+ (rbtree-size rb) 1))
           (node-color-set! z 'red)
           (node-right-set! y z)])
         (insert-fixup rb z))]
      [else
-      (if ((rb-trees-key<? rb) key (node-key x))
+      (if ((rbtree-key<? rb) key (node-key x))
           (loop (node-left x) x)
           (loop (node-right x) x))])))
 
@@ -222,20 +219,20 @@
             (node-fold (proc init node) proc (node-right node))
             (proc init node)))]))
 
-(define (check-rb rb)
+(define (check-rbtree rb)
   (define (raise-error reason)
-    (error 'check-rb reason))
-  (assert (rb-trees? rb))
+    (error 'check-rbtree reason))
+  (assert (rbtree? rb))
   (cond
-   [(not (rb-trees-root rb)) #t]
+   [(not (rbtree-root rb)) #t]
    [else
     (and (or (binary-search-tree? rb)
              (raise-error "not binary-search-tree"))
-         (or (black? (rb-trees-root rb))
+         (or (black? (rbtree-root rb))
              (raise-error "root is not black"))
-         (or (red-has-two-black? (rb-trees-root rb))
+         (or (red-has-two-black? (rbtree-root rb))
              (raise-error "red should have black childlen"))
-         (or (node-fold #t (lambda (accum node) (and accum (black-hight-same? node))) (rb-trees-root rb))
+         (or (node-fold #t (lambda (accum node) (and accum (black-hight-same? node))) (rbtree-root rb))
              (raise-error "black height should be same")))]))
 
 (define (leaf? node)
@@ -255,7 +252,7 @@
       (node-parent-set! (node-left y) x))
     (node-parent-set! y (node-parent x))
     (if (not (node-parent x))
-        (rb-trees-root-set! rb y)
+        (rbtree-root-set! rb y)
         (if (eq? x (node-left (node-parent x)))
             (node-left-set! (node-parent x) y)
             (node-right-set! (node-parent x) y)))
@@ -269,7 +266,7 @@
       (node-parent-set! (node-right y) x))
     (node-parent-set! y (node-parent x))
     (if (not (node-parent x))
-        (rb-trees-root-set! rb y)
+        (rbtree-root-set! rb y)
         (if (eq? x (node-right (node-parent x)))
             (node-right-set! (node-parent x) y)
             (node-left-set! (node-parent x) y)))
@@ -302,7 +299,7 @@
      [else
       (insert-fixup-rec rb z node-left right-rotate left-rotate)])]
    [else '()])
-  (node-color-set! (rb-trees-root rb) 'black))
+  (node-color-set! (rbtree-root rb) 'black))
 
 (define (red-has-two-black? node)
   (cond
@@ -340,7 +337,7 @@
     (set! nil-index (+ nil-index 1))
     x))
 
-(define (rb->dot rb . port)
+(define (rbtree->dot rb . port)
   (define (print-node-color node port)
     (if (black? node)
         (format port "    ~s [style = filled, fillcolor = \"#cccccc\"];\n" (node-key node))
@@ -368,7 +365,7 @@
                          (print-node-color right port)
                          (format port "    ~s -> ~s;\n" (node-key node) (node-key right))])
                      ))
-               (rb-trees-root rb))
+               (rbtree-root rb))
     (display "}\n" port)))
 
 ;; internal procedures
@@ -377,12 +374,12 @@
              (node-fold #f
                         (lambda (prev-key node)
                           (cond
-                           [(and prev-key (or ((rb-trees-key=? rb) prev-key (node-key node)) ((rb-trees-key<? rb) prev-key (node-key node))))
+                           [(and prev-key (or ((rbtree-key=? rb) prev-key (node-key node)) ((rbtree-key<? rb) prev-key (node-key node))))
                             (node-key node)]
                            [(not prev-key)
                             (node-key node)]
                            [else
-                            (break #f)])) (rb-trees-root rb)))))
+                            (break #f)])) (rbtree-root rb)))))
 
 )
 
