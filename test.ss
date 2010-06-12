@@ -55,6 +55,8 @@
 
   (check (rb-size rb) => 6)
 
+  (check (rb-keys rb) '(1 2 3 4 5 6))
+
   (rb-delete! rb 1)
   (check (rb-get rb 1 'not-found) => 'not-found)
   (check (check-rb rb) => #t)
@@ -112,7 +114,6 @@
     (close-port port)))
 
 ;; TODO
-;; num-entries
 ;; unify name-prefix
 ;; keys
 ;; contains?
