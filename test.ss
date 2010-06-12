@@ -54,8 +54,7 @@
   (check (check-rb rb) => #t)
 
   (check (rb-size rb) => 6)
-
-  (check (rb-keys rb) '(1 2 3 4 5 6))
+  (check (rb-keys rb) => '(0 1 2 3 4 5 ))
 
   (rb-delete! rb 1)
   (check (rb-get rb 1 'not-found) => 'not-found)

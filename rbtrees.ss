@@ -41,6 +41,7 @@
    rb-trees?
    check-rb
    rb-set!
+   rb-keys
    rb-delete!
    rb-get
    rb-size
@@ -72,6 +73,13 @@
 
 (define (rb-size rb)
   (rb-trees-size rb))
+
+(define (rb-keys rb)
+  (reverse
+   (node-fold '()
+              (lambda (accum node)
+                (cons (node-key node) accum))
+              (rb-trees-root rb))))
 
 (define (rb-get rb key . fallback)
   (let ([node (rb-get-node (rb-trees-key=? rb) (rb-trees-key<? rb) (rb-trees-root rb) key)])
