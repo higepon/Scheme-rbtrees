@@ -53,6 +53,8 @@
   (check (rb-get rb 5) => 'val5)
   (check (check-rb rb) => #t)
 
+  (check (rb-size rb) => 6)
+
   (rb-delete! rb 1)
   (check (rb-get rb 1 'not-found) => 'not-found)
   (check (check-rb rb) => #t)
@@ -112,5 +114,6 @@
 ;; num-entries
 ;; unify name-prefix
 ;; keys
+;; contains?
 
 (check-report)
