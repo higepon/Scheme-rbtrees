@@ -1,6 +1,7 @@
 (import (rnrs)
         (srfi :27)
         (srfi :78)
+        (mosh)
         (rbtrees))
 
 (let ([rb (make-rb-trees = <)])
@@ -8,16 +9,6 @@
       ((= i 100))
     (rb-set! rb i i))
   (check (check-rb rb) => #t))
-
-;; (let ([rb (make-rb-trees)])
-;;   (let ([port (open-output-file "rb-trees.dot")])
-;;     (do ([i 0 (+ i 1)]
-;;          [j (random-integer 100000) (random-integer 100000)])
-;;         ((= i 100))
-;;       (rb-set! rb j j))
-;;     (check (check-rb rb) => #t)
-;;     (rb->dot rb port)
-;;     (close-port port)))
 
 (let ([rb (make-rb-trees = <)])
 
@@ -86,11 +77,10 @@
   (check (rb-get rb 4 'not-found) => 'not-found)
   (check (check-rb rb) => #t)
 
-
-
-
-
 )
+
+
+
 
 (let ([rb (make-rb-trees string=? string<?)])
 
@@ -106,9 +96,21 @@
 
   (rb-delete! rb "abc")
   (check (rb-get rb "abc" 'not-found) => 'not-found)
+  )
 
+#;(let ([rb (make-rb-trees = <)])
   (let ([port (open-output-file "rb-trees.dot")])
-    (rb->dot rb port)
+    (do ([i 0 (+ i 1)]
+         [j (random-integer 1000000) (random-integer 1000000)])
+        ((= i 100000))
+      (rb-set! rb j j))
+    (check (check-rb rb) => #t)
+    (time (rb-get rb 1234 1))
     (close-port port)))
+
+;; TODO
+;; num-entries
+;; unify name-prefix
+;; keys
 
 (check-report)
