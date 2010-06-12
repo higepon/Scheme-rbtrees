@@ -43,6 +43,7 @@
    rb-set!
    rb-delete!
    rb-get
+   rb-size
    make-rb-trees
    rb->dot
    )
@@ -52,12 +53,13 @@
 (define-record-type rb-trees
   (fields
    (mutable root)
+   (mutable size)
    (immutable  key=?)
    (immutable key<?))
   (protocol
    (lambda (c)
      (lambda (key=? key<?)
-       (c #f key=? key<?)))))
+       (c #f 0 key=? key<?)))))
 
 (define-record-type node
   (fields
@@ -67,6 +69,9 @@
    (mutable key)
    (mutable value)
    (mutable color)))
+
+(define (rb-size rb)
+  (rb-trees-size rb))
 
 (define (rb-get rb key . fallback)
   (let ([node (rb-get-node (rb-trees-key=? rb) (rb-trees-key<? rb) (rb-trees-root rb) key)])
@@ -90,7 +95,8 @@
 (define (rb-delete! rb key)
   (let ([node (rb-get-node (rb-trees-key=? rb) (rb-trees-key<? rb) (rb-trees-root rb) key)])
     (when node
-        (node-delete! rb node))))
+      (rb-trees-size-set! rb (- (rb-trees-size rb) 1))
+      (node-delete! rb node))))
 
 (define (tree-successor x)
   (cond
@@ -178,11 +184,14 @@
         (cond
          [(not y)
           (node-color-set! z 'black)
+          (rb-trees-size-set! rb (+ (rb-trees-size rb) 1))
           (rb-trees-root-set! rb z)]
          [((rb-trees-key<? rb) key (node-key y))
           (node-color-set! z 'red)
+          (rb-trees-size-set! rb (+ (rb-trees-size rb) 1))
           (node-left-set! y z)]
          [else
+          (rb-trees-size-set! rb (+ (rb-trees-size rb) 1))
           (node-color-set! z 'red)
           (node-right-set! y z)])
         (insert-fixup rb z))]
