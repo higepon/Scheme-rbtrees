@@ -116,8 +116,6 @@
     (close-port port)))
 
 ;; TODO
-;; unify name-prefix
-;; keys
-;; contains?
+;; -set twice overwritten?
 
 (check-report)

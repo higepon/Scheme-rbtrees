@@ -13,13 +13,20 @@ Put rbtree.ss to your LOADPATH.
       (rbtree-get rb "abc" 'not-found)) ;; => 'not-found
 
 ## API
-- (rbtree? obj) => #t or #f
+- (rbtree? obj)
+  - Returns #t when obj is rbtree, otherwise #f.
 - (rbtree-set! rb key value)
-- (rbtree-keys rb) : Returns keys as list
-- (rbtree-delete! rb key) : delete the value associated with key
-- (rbtree-get rb key . fallback) : 
+  - Set (key value) to the rbtree.
+- (rbtree-keys rb)
+  - Returns keys as list in desc order.
+- (rbtree-delete! rb key)
+  - Delete (key value) from the rb. When key is not found, do nothing.
+- (rbtree-get rb key . fallback) 
+  - Returns value associated with key.  When key is not found and fallback is specified, returns fallback, otherwise raise error.
 - (rbtree-size rb) : number of elements
+  - Returns number of key.
 - (rbtree-contains? rb key)
+  - Returns #t when the rb
 - (make-rbtree compare=? compare<?)
 
 ## Author
