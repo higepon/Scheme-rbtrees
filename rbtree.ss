@@ -45,6 +45,7 @@
    rbtree-delete!
    rbtree-get
    rbtree-size
+   rbtree-contains?
    make-rbtree
    rbtree->dot
    )
@@ -77,6 +78,12 @@
               (lambda (accum node)
                 (cons (node-key node) accum))
               (rbtree-root rb))))
+
+(define (rbtree-contains? rb key)
+  (if (eq? (rbtree-get rb key '$$$not-found)
+           '$$$not-found)
+      #f
+      #t))
 
 (define (rbtree-get rb key . fallback)
   (let ([node (rbtree-get-node (rbtree-key=? rb) (rbtree-key<? rb) (rbtree-root rb) key)])
