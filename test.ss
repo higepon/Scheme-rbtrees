@@ -14,8 +14,11 @@
 
   (check (rbtree-get rb 1 'not-found) => 'not-found)
 
+  (check (rbtree-contains? rb 1) => #f)
+
   (check (check-rbtree rb) => #t)
   (rbtree-set! rb 1 'val1)
+  (check (rbtree-contains? rb 1) => #t)
   (check (rbtree-get rb 1) => 'val1)
   (check (check-rbtree rb) => #t)
 
