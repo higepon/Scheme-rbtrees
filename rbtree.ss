@@ -208,9 +208,13 @@
           (node-right-set! y z)])
         (insert-fixup rb z))]
      [else
-      (if ((rbtree-key<? rb) key (node-key x))
-          (loop (node-left x) x)
-          (loop (node-right x) x))])))
+      (cond
+       [((rbtree-key=? rb) key (node-key x))
+        (node-value-set! x value)]
+       [((rbtree-key<? rb) key (node-key x))
+          (loop (node-left x) x)]
+       [else
+          (loop (node-right x) x)])])))
 
 (define (node-fold init proc node)
   (cond
