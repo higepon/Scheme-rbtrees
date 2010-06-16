@@ -86,24 +86,29 @@
 
 )
 
+(when (file-exists? "rbtree.dot")
+  (delete-file "rbtree.dot"))
 
+(let ([port (open-output-file "rbtree.dot")])
+  (let ([rb (make-rbtree string=? string<?)])
 
+    (check (rbtree-get rb "abc" 'not-found) => 'not-found)
 
-(let ([rb (make-rbtree string=? string<?)])
+    (rbtree-set! rb "abc" 'val1)
+    (rbtree-set! rb "abc" 'val2)
+    (check (rbtree-get rb "abc") => 'val2)
+    (check (check-rbtree rb) => #t)
 
-  (check (rbtree-get rb "abc" 'not-found) => 'not-found)
+    (rbtree->dot rb port)
 
-  (rbtree-set! rb "abc" 'val1)
-  (check (rbtree-get rb "abc") => 'val1)
-  (check (check-rbtree rb) => #t)
+    (rbtree-set! rb "def" 'val2)
+    (check (rbtree-get rb "def") => 'val2)
+    (check (check-rbtree rb) => #t)
 
-  (rbtree-set! rb "def" 'val2)
-  (check (rbtree-get rb "def") => 'val2)
-  (check (check-rbtree rb) => #t)
-
-  (rbtree-delete! rb "abc")
-  (check (rbtree-get rb "abc" 'not-found) => 'not-found)
-  )
+    (rbtree-delete! rb "abc")
+    (check (rbtree-get rb "abc" 'not-found) => 'not-found)
+    (close-port port)
+    ))
 
 #;(let ([rb (make-rbtree = <)])
   (let ([port (open-output-file "rbtree-trees.dot")])

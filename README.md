@@ -1,7 +1,7 @@
 # What is this?
-Red-black tree (http://en.wikipedia.org/wiki/Red-black_tree).
+Red-black tree (http://en.wikipedia.org/wiki/Red-black_tree) implmentation for R6RS.
 
-# Using Red-black tree
+## Using Red-black tree
 Put rbtree.ss to your LOADPATH.
 
     (import (rnrs) (rbtree))
