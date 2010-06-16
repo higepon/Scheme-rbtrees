@@ -106,9 +106,12 @@
 
 (define (rbtree-delete! rb key)
   (let ([node (rbtree-get-node (rbtree-key=? rb) (rbtree-key<? rb) (rbtree-root rb) key)])
-    (when node
+    (cond
+     [node
       (rbtree-size-set! rb (- (rbtree-size rb) 1))
-      (node-delete! rb node))))
+      (node-delete! rb node)
+      #t]
+     [else #f])))
 
 (define (tree-successor x)
   (cond
