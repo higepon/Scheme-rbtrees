@@ -22,7 +22,7 @@ Put rbtree.ss to your LOADPATH.
 - (rbtree-delete! rbtree key)
   - Deletes an entry with key from rbtree if such an entry exists, and returns #t otherwise #f.
 - (rbtree-get rbtree key . fallback) 
-  - Returns value associated with key.  If key is not found and fallback is specified, returns fallback, otherwise raise error.
+  - Returns value associated with key. If key is not found and fallback is specified, returns fallback, otherwise raise error.
 - (rbtree-size rbtree)
   - Returns number of elementes.
 - (rbtree-contains? rbtree key)
