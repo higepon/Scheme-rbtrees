@@ -1,0 +1,10 @@
+(package rbtree)
+(version 0 0 1)
+(code "rbtree.ss")
+(author "Higepon(Taro Minowa)")
+(license New BSD)
+(synopsis "Red-Black tree")
+(description "Red-Black tree library for R6RS")
+(depends
+ (srfi :48))
+(schemes ikarus mosh ypsilon plt larceny)
